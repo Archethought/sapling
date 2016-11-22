@@ -238,5 +238,23 @@ describe Sapling do
         expect(Post).to have_received(:create).exactly(9).times
       end
     end
+
+    context 'when a seed definition uses local sequences' do
+      before do
+        Sapling.define do
+          seed :user do
+            sequence(:email) {|n| "test#{n}@example.com"}
+          end
+
+          Sapling.seed { user 2 }
+        end
+      end
+
+      it 'creates an attribute with an incrementing parameter' do
+        Sapling.create_seeds
+        expect(User).to have_received(:create).with(email: 'test1@example.com').ordered
+        expect(User).to have_received(:create).with(email: 'test2@example.com').ordered
+      end
+    end
   end
 end

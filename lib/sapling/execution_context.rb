@@ -48,19 +48,20 @@ module Sapling
     def run_create(parent=nil)
       @instructions.each do |instruction|
         seed = instruction[:seed]
-        attrs = seed.attributes
-
-        instruction[:attrs].each do |name, value|
-          value = value.call(seed.send(name)) if value.respond_to? :call
-          attrs[name] = value
-        end
-
-        if parent
-          assoc_name = seed.associations[parent.class]
-          attrs[assoc_name] = parent
-        end
 
         instruction[:count].times do
+          attrs = seed.attributes
+
+          instruction[:attrs].each do |name, value|
+            value = value.call(seed.send(name)) if value.respond_to? :call
+            attrs[name] = value
+          end
+
+          if parent
+            assoc_name = seed.associations[parent.class]
+            attrs[assoc_name] = parent
+          end
+
           record = seed.model_class.create(attrs)
 
           if instruction[:sub_context]

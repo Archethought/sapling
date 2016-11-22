@@ -4,10 +4,11 @@ require 'sapling/seed'
 require 'sapling/registry'
 require 'sapling/configuration'
 require 'sapling/execution_context'
+require 'sapling/sequence'
 
 module Sapling
   class << self
-    delegate :seeds, :contexts, to: :configuration
+    delegate :seeds, :contexts, :sequences, to: :configuration
   end
 
   # Returns a new or existing configuration
@@ -30,6 +31,10 @@ module Sapling
 
   def self.register_context(context)
     contexts.register(context.name, context)
+  end
+
+  def self.register_sequence(sequence)
+    sequences.register(sequence.name, sequence)
   end
 
   # Top level DSL for creating seed definitions. 
