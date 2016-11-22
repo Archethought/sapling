@@ -38,8 +38,12 @@ describe Sapling do
   end
 
   describe 'creating seeds' do
+    let(:user) { User.new }
+    let(:post) { Post.new }
+
     before do
-      allow(User).to receive(:create)
+      allow(User).to receive(:create).and_return(user)
+      allow(Post).to receive(:create).and_return(post)
     end
 
     context 'when a seed is defined with only a model name' do
@@ -96,11 +100,15 @@ describe Sapling do
             answer { 40 + 2 }
           end
         end
+
+        Sapling.seed do
+          user
+        end
       end
 
-      it 'registers a seed with dynamic attributes' do
-        seed = Sapling.seeds.find(:user)
-        expect(seed.answer).to eq 42
+      it 'creates a seed with the computed value' do
+        Sapling.create_seeds
+        expect(User).to have_received(:create).with(answer: 42)
       end
     end
 
@@ -139,6 +147,50 @@ describe Sapling do
       it 'creates a new record with the overriden dynamic value' do
         Sapling.create_seeds
         expect(User).to have_received(:create).with(answer: 42)
+      end
+    end
+
+    context 'when seeding multiple times' do
+      before do
+        Sapling.define do
+          seed :user do
+            first_name 'John'
+          end
+        end
+
+        Sapling.seed do
+          user 3
+        end
+      end
+
+      it 'creates 3 new user records' do
+        Sapling.create_seeds
+        expect(User).to have_received(:create).exactly(3).times.with(first_name: 'John')
+      end
+    end
+
+    context 'when a seed configuration has a nested seed' do
+      before do
+        Sapling.define do
+          seed :user do
+            first_name 'John'
+          end
+
+          seed :post do
+            subject 'A test message'
+            association :user
+          end
+        end
+
+        Sapling.seed do
+          user { post }
+        end
+      end
+
+      it 'creates a new record for the nested model with the parent matching the association' do
+        Sapling.create_seeds
+        expect(User).to have_received(:create).with(first_name: 'John')
+        expect(Post).to have_received(:create).with(subject: 'A test message', user: user)
       end
     end
   end
