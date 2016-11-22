@@ -1,6 +1,7 @@
 # Sapling
 
 [![Code Climate](https://codeclimate.com/github/Archethought/sapling/badges/gpa.svg)](https://codeclimate.com/github/Archethought/sapling)
+[![Build Status](https://travis-ci.org/Archethought/sapling.svg?branch=master)](https://travis-ci.org/Archethought/sapling)
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/sapling`. To experiment with that code, run `bin/console` for an interactive prompt.
 
