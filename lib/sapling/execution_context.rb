@@ -32,7 +32,12 @@ module Sapling
     def run_create
       @instructions.each do |instruction|
         seed = instruction[:seed]
-        seed.model_class.create(seed.attributes.merge(instruction[:attrs]))
+        attrs = seed.attributes
+        instruction[:attrs].each do |name, value|
+          value = value.call(seed.send(name)) if value.respond_to? :call
+          attrs[name] = value
+        end
+        seed.model_class.create(attrs)
       end
     end
   end

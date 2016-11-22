@@ -122,5 +122,24 @@ describe Sapling do
         expect(User).to have_received(:create).with(first_name: 'Jane')
       end
     end
+
+    context 'when a seed has a dynamic attribute overriden' do
+      before do
+        Sapling.define do
+          seed :user do
+            answer { 40 + 1 }
+          end
+        end
+
+        Sapling.seed do
+          user answer: proc {|a| a + 1 }
+        end
+      end
+
+      it 'creates a new record with the overriden dynamic value' do
+        Sapling.create_seeds
+        expect(User).to have_received(:create).with(answer: 42)
+      end
+    end
   end
 end
