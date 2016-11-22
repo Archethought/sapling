@@ -193,5 +193,30 @@ describe Sapling do
         expect(Post).to have_received(:create).with(subject: 'A test message', user: user)
       end
     end
+
+    context 'when a seed is configured with nested seeds with count' do
+      before do
+        Sapling.define do
+          seed :user do
+            first_name 'John'
+          end
+
+          seed :post do
+            subject 'A test message'
+            association :user
+          end
+        end
+
+        Sapling.seed do
+          user(3) { post 3 }
+        end
+      end
+
+      it 'creates the nested model n*m times' do
+        Sapling.create_seeds
+        expect(User).to have_received(:create).exactly(3).times
+        expect(Post).to have_received(:create).exactly(9).times
+      end
+    end
   end
 end
