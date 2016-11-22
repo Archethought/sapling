@@ -37,52 +37,6 @@ describe Sapling do
     end
   end
 
-  describe 'defining seeds' do
-    context 'when a seed is defined with only a model name' do
-      before do
-        Sapling.define do
-          seed :user
-        end
-      end
-
-      it 'registers a seed' do
-        expect(Sapling.seeds.registered?(:user)).to be true
-      end
-    end
-
-    context 'when a seed is defined with attributes' do
-      before do
-        Sapling.define do
-          seed :user do
-            first_name 'John'
-            last_name 'Doe'
-          end
-        end
-      end
-
-      it 'registers a seed with attributes' do
-        seed = Sapling.seeds.find(:user)
-        expect(seed.first_name).to eq 'John'
-        expect(seed.last_name).to eq 'Doe'
-      end
-    end
-
-    context 'when a seed is defined with dynamic attributes' do
-      before do
-        Sapling.define do
-          seed :user do
-            answer { 40 + 2 }
-          end
-        end
-      end
-
-      it 'registers a seed with dynamic attributes' do
-        seed = Sapling.seeds.find(:user)
-        expect(seed.answer).to eq 42
-      end
-    end
-  end
-
   describe 'creating seeds' do
     before do
       allow(User).to receive(:create)
@@ -99,7 +53,11 @@ describe Sapling do
         end
       end
 
-      it 'creates a new record for the class' do
+      it 'registers a seed' do
+        expect(Sapling.seeds.registered?(:user)).to be true
+      end
+
+      it 'creates a new user record' do
         Sapling.create_seeds
         expect(User).to have_received(:create)
       end
@@ -119,9 +77,30 @@ describe Sapling do
         end
       end
 
+      it 'registers a seed with attributes' do
+        seed = Sapling.seeds.find(:user)
+        expect(seed.first_name).to eq 'John'
+        expect(seed.last_name).to eq 'Doe'
+      end
+
       it 'creates a new record with attributes' do
         Sapling.create_seeds
         expect(User).to have_received(:create).with(first_name: 'John', last_name: 'Doe')
+      end
+    end
+
+    context 'when a seed is defined with dynamic attributes' do
+      before do
+        Sapling.define do
+          seed :user do
+            answer { 40 + 2 }
+          end
+        end
+      end
+
+      it 'registers a seed with dynamic attributes' do
+        seed = Sapling.seeds.find(:user)
+        expect(seed.answer).to eq 42
       end
     end
   end
