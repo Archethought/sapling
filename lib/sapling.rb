@@ -10,12 +10,17 @@ module Sapling
     delegate :seeds, :contexts, to: :configuration
   end
 
+  # Returns a new or existing configuration
+  #
+  # The configuration is the target of many Sapling class method
+  # interfaces.
   def self.configuration
     @configuration ||= Configuration.new
   end
 
+  # Generates a fresh configuration
   def self.reset_configuration
-    @configuration = nil
+    @configuration = Configuration.new
   end
 
   # Registers new seeds into the global namespace
@@ -32,7 +37,7 @@ module Sapling
     DefineDSL.run(block)
   end
 
-  # Top level DSL for defining how seed definitions are to be used.
+  # Top level DSL for defining a seed configuration
   def self.seed(&block)
     context = ExecutionContext.new
     context.instance_eval(&block)
