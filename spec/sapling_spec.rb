@@ -103,5 +103,24 @@ describe Sapling do
         expect(seed.answer).to eq 42
       end
     end
+
+    context 'when a seed has an attribute overriden' do
+      before do
+        Sapling.define do
+          seed :user do
+            first_name 'John'
+          end
+        end
+
+        Sapling.seed do
+          user first_name: 'Jane'
+        end
+      end
+
+      it 'creates a new record with the overriden value' do
+        Sapling.create_seeds
+        expect(User).to have_received(:create).with(first_name: 'Jane')
+      end
+    end
   end
 end

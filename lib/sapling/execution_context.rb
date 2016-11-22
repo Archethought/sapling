@@ -1,3 +1,5 @@
+require 'active_support/core_ext/array/extract_options'
+
 module Sapling
   class ExecutionContext
     attr_reader :name, :instructions
@@ -14,10 +16,12 @@ module Sapling
       end
     end
 
-    def method_missing(name)
+    def method_missing(name, *args)
+      attrs = args.extract_options!
+
       if Sapling.seeds.registered?(name)
         seed = Sapling.seeds[name]
-        @instructions << {seed: seed}
+        @instructions << {seed: seed, attrs: attrs}
       else
         super
       end
@@ -28,7 +32,7 @@ module Sapling
     def run_create
       @instructions.each do |instruction|
         seed = instruction[:seed]
-        seed.model_class.create(seed.attributes)
+        seed.model_class.create(seed.attributes.merge(instruction[:attrs]))
       end
     end
   end
