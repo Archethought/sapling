@@ -1,4 +1,8 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+
+require 'simplecov'
+SimpleCov.start
+
 require "sapling"
 
 Dir["#{Dir.pwd}/spec/lib/*.rb"].each(&method(:require))
