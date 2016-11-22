@@ -16,12 +16,12 @@ module Sapling
       Hash[ @attributes.map {|attr| [attr, send(attr)]} ]
     end
 
-    def method_missing(name, value=nil, &block)
+    def method_missing(name, value=nil, opts={}, &block)
       super if name.to_s == 'define_method'
 
       if name.to_s == 'association'
-        assoc_class = value.to_s.classify.constantize
-        @associations[assoc_class] = value
+        opts[:class_name] ||= value.to_s.classify
+        @associations[opts[:class_name].constantize] = value
       else
         m = value ? proc { value } : block
         singleton = class << self; self; end

@@ -194,6 +194,26 @@ describe Sapling do
       end
     end
 
+    context 'when a seed is defined with an association and class name' do
+      before do
+        Sapling.define do
+          seed :user
+          seed :post do
+            association :owner, class_name: 'User'
+          end
+        end
+
+        Sapling.seed do
+          user { post }
+        end
+      end
+
+      it 'creates a record from the class name with the given association name' do
+        Sapling.create_seeds
+        expect(Post).to have_received(:create).with(owner: user)
+      end
+    end
+
     context 'when a seed is configured with nested seeds with count' do
       before do
         Sapling.define do
