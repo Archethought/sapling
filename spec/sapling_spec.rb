@@ -81,12 +81,6 @@ describe Sapling do
         end
       end
 
-      it 'registers a seed with attributes' do
-        seed = Sapling.seeds.find(:user)
-        expect(seed.first_name).to eq 'John'
-        expect(seed.last_name).to eq 'Doe'
-      end
-
       it 'creates a new record with attributes' do
         Sapling.create_seeds
         expect(User).to have_received(:create).with(first_name: 'John', last_name: 'Doe')
