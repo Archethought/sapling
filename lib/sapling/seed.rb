@@ -5,6 +5,7 @@ module Sapling
     def initialize(name)
       @name = name
       @attributes = []
+      @definition = Module.new
       @associations = {}
     end
 
@@ -13,20 +14,19 @@ module Sapling
     end
 
     def attributes
-      Hash[ @attributes.map {|attr| [attr, send(attr)]} ]
+      Hash[ @attributes.map {|attr| [attr, @definition.send(attr)]} ]
     end
 
     def sequence(name, &block)
       sequence = Sequence.new("#{self.name}_#{name}", block)
       Sapling.register_sequence(sequence)
 
+      seq_name = "#{@name}_#{name}"
       m = proc do
-        result = Sapling.sequences.find("#{self.name}_#{name}").next
-        result
+        Sapling.sequences.find(seq_name).next
       end
 
-      singleton = class << self; self; end
-      singleton.send(:define_method, name, m)
+      @definition.define_singleton_method(name, &m)
       @attributes << name
     end
 
@@ -38,9 +38,7 @@ module Sapling
         @associations[opts[:class_name].constantize] = value
       else
         m = value ? proc { value } : block
-        singleton = class << self; self; end
-        singleton.send(:define_method, name, &m)
-
+        @definition.define_singleton_method(name, &m)
         @attributes << name
       end
     end
