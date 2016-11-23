@@ -53,7 +53,7 @@ module Sapling
           attrs = seed.attributes
 
           instruction[:attrs].each do |name, value|
-            value = value.call(seed.send(name)) if value.respond_to? :call
+            value = value.call(attrs[name]) if value.respond_to? :call
             attrs[name] = value
           end
 
