@@ -22,25 +22,29 @@ module Sapling
       Sapling.register_sequence(sequence)
 
       seq_name = "#{@name}_#{name}"
-      m = proc do
+
+      define_attribute(name) do
         Sapling.sequences.find(seq_name).next
       end
+    end
 
-      @definition.define_singleton_method(name, &m)
-      @attributes << name
+    def association(name, opts={})
+      opts[:class_name] ||= name.to_s.classify
+      @associations[opts[:class_name].constantize] = name
     end
 
     def method_missing(name, value=nil, opts={}, &block)
-      super if name.to_s == 'define_method'
-
-      if name.to_s == 'association'
-        opts[:class_name] ||= value.to_s.classify
-        @associations[opts[:class_name].constantize] = value
-      else
+      if value || block_given?
         m = value ? proc { value } : block
-        @definition.define_singleton_method(name, &m)
-        @attributes << name
+        define_attribute(name, &m)
+      else
+        super
       end
+    end
+
+    def define_attribute(name, &block)
+      @definition.define_singleton_method(name, &block)
+      @attributes << name
     end
   end
 end
